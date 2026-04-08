@@ -645,8 +645,65 @@ a, button { transition: color var(--transition), background var(--transition), o
 .fs-stat-item-val { font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 700; color: var(--color-sched); }
 .fs-stat-item-label { font-family: var(--font-mono); font-size: 0.4375rem; color: var(--color-text-faint); text-transform: uppercase; }
 
-/* Tappable hint pulse on mini elements */
-.ab-diamond-wrap, .ab-count-block, .ab-zone-wrap, .ab-matchup { cursor: pointer; }
+/* ── Fullscreen Pitches ── */
+.fs-last-pitch {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-2);
+  border-bottom: 1px solid var(--color-divider);
+  width: 100%; gap: var(--space-2);
+}
+.fs-pitch-type { font-family: var(--font-mono); font-size: var(--text-md); font-weight: 700; color: var(--color-text); }
+.fs-pitch-speed { font-family: var(--font-mono); font-size: var(--text-xl); font-weight: 700; color: var(--color-live); }
+.fs-seq-table {
+  width: 100%; border-collapse: collapse;
+  font-family: var(--font-mono); font-size: var(--text-sm);
+}
+.fs-seq-table th {
+  color: var(--color-text-faint); font-weight: 700; padding: 4px 6px;
+  text-align: center; border-bottom: 1px solid var(--color-divider);
+  font-size: var(--text-xs);
+}
+.fs-seq-table th:first-child { text-align: center; width: 22px; }
+.fs-seq-table td {
+  padding: 4px 6px; color: var(--color-text-muted); text-align: center;
+  border-bottom: 1px solid color-mix(in oklch, var(--color-divider) 40%, transparent);
+}
+.fs-seq-table td.pitch-num { color: var(--color-text-faint); font-weight: 600; }
+.fs-seq-table td.pitch-speed { color: var(--color-text); font-weight: 600; }
+.fs-seq-table td.pitch-call-strike { color: var(--color-primary); font-weight: 600; }
+.fs-seq-table td.pitch-call-ball { color: var(--color-win); font-weight: 600; }
+.fs-seq-table td.pitch-call-inplay { color: var(--color-live); font-weight: 600; }
+.fs-seq-table tr.current-pitch td { background: color-mix(in oklch, var(--color-live) 10%, transparent); }
+.fs-seq-table tr:last-child td { border-bottom: none; }
+
+/* ── Fullscreen Plays ── */
+.fs-plays-wrap {
+  width: 100%; overflow-y: auto; flex: 1; min-height: 0;
+  padding: 0 var(--space-2);
+}
+.fs-play-item {
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid color-mix(in oklch, var(--color-divider) 50%, transparent);
+}
+.fs-play-item:last-child { border-bottom: none; }
+.fs-play-event {
+  font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 700;
+  color: var(--color-text);
+}
+.fs-play-inning {
+  font-family: var(--font-mono); font-size: 0.5rem; color: var(--color-text-faint);
+  font-weight: 600; margin-left: var(--space-1);
+}
+.fs-play-desc {
+  font-size: var(--text-xs); color: var(--color-text-muted); line-height: 1.4;
+  margin-top: 2px;
+}
+.fs-play-item.scoring .fs-play-event { color: var(--color-win); }
+
+/* Tappable hint on mini elements */
+.ab-diamond-wrap, .ab-count-block, .ab-zone-wrap, .ab-matchup,
+.ab-last-pitch, .ab-pitch-seq, .ab-play-desc, .ab-recent-plays { cursor: pointer; }
 
 /* ─── SKELETON ─── */
 @keyframes shimmer {
@@ -723,7 +780,7 @@ a, button { transition: color var(--transition), background var(--transition), o
 
 <div class="status-bar">
   <span style="display:flex;flex-direction:column;align-items:flex-start">
-    <span class="version-watermark" id="versionWatermark">v2.1.0</span>
+    <span class="version-watermark" id="versionWatermark">v2.2.0</span>
     <span class="status-date" id="statusDate">Loading…</span>
   </span>
   <span class="status-text" id="statusGames">—</span>
@@ -776,7 +833,7 @@ a, button { transition: color var(--transition), background var(--transition), o
 <div class="fs-overlay" id="fsOverlay">
   <div class="fs-overlay-header">
     <div style="display:flex;flex-direction:column">
-      <span class="fs-overlay-version" id="fsVersion">v2.1.0</span>
+      <span class="fs-overlay-version" id="fsVersion">v2.2.0</span>
       <span class="fs-overlay-title" id="fsTitle">ZONE</span>
     </div>
     <span class="fs-overlay-hint">TAP TO CLOSE</span>
@@ -1545,6 +1602,10 @@ function renderAtBatDetail(data) {
   document.querySelector('#tab-atbat .ab-diamond-wrap')?.addEventListener('click', (e) => { e.stopPropagation(); openFullscreen('diamond'); });
   document.querySelector('#tab-atbat .ab-count-block')?.addEventListener('click', (e) => { e.stopPropagation(); openFullscreen('count'); });
   document.querySelector('#tab-atbat .ab-matchup')?.addEventListener('click', (e) => { e.stopPropagation(); openFullscreen('stats'); });
+  document.querySelector('#tab-atbat .ab-last-pitch')?.addEventListener('click', (e) => { e.stopPropagation(); openFullscreen('pitches'); });
+  document.querySelector('#tab-atbat .ab-pitch-seq')?.addEventListener('click', (e) => { e.stopPropagation(); openFullscreen('pitches'); });
+  document.querySelector('#tab-atbat .ab-play-desc')?.addEventListener('click', (e) => { e.stopPropagation(); openFullscreen('plays'); });
+  document.querySelector('#tab-atbat .ab-recent-plays')?.addEventListener('click', (e) => { e.stopPropagation(); openFullscreen('plays'); });
 }
 
 /* ══════════════════════════════════════════
@@ -1554,7 +1615,7 @@ function openFullscreen(mode) {
   if (!state.atbatLiveData) return;
   state.fsMode = mode;
   const overlay = document.getElementById('fsOverlay');
-  const titles = { zone: 'STRIKE ZONE', diamond: 'BASE RUNNERS', count: 'COUNT', stats: 'MATCHUP STATS' };
+  const titles = { zone: 'STRIKE ZONE', diamond: 'BASE RUNNERS', count: 'COUNT', stats: 'MATCHUP STATS', pitches: 'PITCH SEQUENCE', plays: 'RECENT PLAYS' };
   document.getElementById('fsTitle').textContent = titles[mode] || mode.toUpperCase();
   renderFullscreen(mode);
   overlay.classList.add('open');
@@ -1734,11 +1795,101 @@ function renderFullscreen(mode) {
         if (mode !== state.atbatStatMode) {
           state.atbatStatMode = mode;
           renderFullscreen('stats');
-          // Also re-render the underlying detail so it stays in sync
           renderAtBatDetail(state.atbatLiveData);
         }
       });
     });
+
+  } else if (mode === 'pitches') {
+    // Last pitch header + full pitch sequence table
+    const lastP = pitchEvents.length > 0 ? pitchEvents[pitchEvents.length - 1] : null;
+    let lastPitchHTML = '';
+    if (lastP) {
+      const pType = lastP.details?.type?.description || lastP.details?.type?.code || '—';
+      const pSpeed = lastP.pitchData?.startSpeed ? Math.round(lastP.pitchData.startSpeed) : '—';
+      const pResult = lastP.details?.call?.description || lastP.details?.description || '—';
+      const pSpin = lastP.pitchData?.breaks?.spinRate || '';
+      lastPitchHTML = `
+        <div class="fs-last-pitch">
+          <div>
+            <div style="font-family:var(--font-mono);font-size:0.5rem;color:var(--color-text-faint);font-weight:700;text-transform:uppercase">LAST PITCH</div>
+            <div class="fs-pitch-type">${pType}</div>
+          </div>
+          <div class="fs-pitch-speed">${pSpeed}<span style="font-size:var(--text-xs);color:var(--color-text-faint);font-weight:400"> mph</span></div>
+          <div style="text-align:right">
+            <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-text-muted)">${pResult}</div>
+            ${pSpin ? `<div style="font-family:var(--font-mono);font-size:0.4375rem;color:var(--color-text-faint)">${pSpin} rpm</div>` : ''}
+          </div>
+        </div>`;
+    }
+
+    // Full sequence with longer result text
+    const seqRows = pitchEvents.map((p, i) => {
+      const num = i + 1;
+      const type = p.details?.type?.code || '—';
+      const speed = p.pitchData?.startSpeed ? Math.round(p.pitchData.startSpeed) : '—';
+      const call = p.details?.call?.description || p.details?.description || '—';
+      const isStrikeP = p.details?.isStrike;
+      const isBallP = p.details?.isBall;
+      const isInPlayP = p.details?.isInPlay;
+      const callCls = isInPlayP ? 'pitch-call-inplay' : (isStrikeP ? 'pitch-call-strike' : (isBallP ? 'pitch-call-ball' : ''));
+      const isCur = i === pitchEvents.length - 1;
+      return `<tr class="${isCur ? 'current-pitch' : ''}">
+        <td class="pitch-num">${num}</td>
+        <td>${type}</td>
+        <td class="pitch-speed">${speed}</td>
+        <td class="${callCls}">${call}</td>
+      </tr>`;
+    }).join('');
+
+    body.innerHTML = `
+      ${lastPitchHTML}
+      <div style="width:100%;padding:var(--space-2);overflow-y:auto;flex:1;min-height:0">
+        <table class="fs-seq-table">
+          <thead><tr><th>#</th><th>TYPE</th><th>MPH</th><th>RESULT</th></tr></thead>
+          <tbody>${seqRows}</tbody>
+        </table>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-text-muted);text-align:center;padding:var(--space-1)">
+        ${pitchEvents.length} pitch${pitchEvents.length !== 1 ? 'es' : ''} this AB
+      </div>`;
+
+  } else if (mode === 'plays') {
+    // Current play + all recent completed plays (more than the mini 5)
+    const allPlays = (ld.plays?.allPlays || []).filter(p => p.about?.isComplete).slice(-10).reverse();
+    const currentDesc = currentPlay.result?.description || '';
+
+    let playsHTML = '';
+    if (currentDesc) {
+      playsHTML += `
+        <div class="fs-play-item" style="background:color-mix(in oklch, var(--color-live) 6%, transparent);padding:var(--space-2);border-radius:var(--radius-md);margin-bottom:var(--space-1)">
+          <div class="fs-play-event" style="color:var(--color-live)">CURRENT</div>
+          <div class="fs-play-desc">${currentDesc}</div>
+        </div>`;
+    }
+
+    playsHTML += allPlays.map(p => {
+      const ev = p.result?.event || '';
+      const desc = p.result?.description || '';
+      const scoring = p.about?.isScoringPlay;
+      const inn = p.about?.halfInning;
+      const innNum = p.about?.inning || '';
+      const innLabel = inn ? `${inn === 'top' ? '▲' : '▼'}${innNum}` : '';
+      return `
+        <div class="fs-play-item${scoring ? ' scoring' : ''}">
+          <div style="display:flex;align-items:center">
+            <span class="fs-play-event">${ev}</span>
+            <span class="fs-play-inning">${innLabel}</span>
+          </div>
+          <div class="fs-play-desc">${desc}</div>
+        </div>`;
+    }).join('');
+
+    body.innerHTML = `
+      <div class="fs-plays-wrap">${playsHTML}</div>
+      <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-text-muted);text-align:center;padding:var(--space-1);flex-shrink:0">
+        ${allPlays.length} recent play${allPlays.length !== 1 ? 's' : ''}
+      </div>`;
   }
 }
 
