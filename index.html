@@ -2046,6 +2046,7 @@ function setAtBatDetailFocus(idx) {
 // Scroll wheel on Box Score tab → move focus between player rows
 // Scroll wheel on At Bat tab → navigate game list or scroll detail
 window.addEventListener('scrollUp', () => {
+  if (state.fsMode) { document.getElementById('fsBody').scrollBy(0, -50); return; }
   if (state.currentTab === 'scores') {
     setFocus(state.focusIndex - 1);
   } else if (state.currentTab === 'boxscore') {
@@ -2059,6 +2060,7 @@ window.addEventListener('scrollUp', () => {
   }
 });
 window.addEventListener('scrollDown', () => {
+  if (state.fsMode) { document.getElementById('fsBody').scrollBy(0, 50); return; }
   if (state.currentTab === 'scores') {
     setFocus(state.focusIndex + 1);
   } else if (state.currentTab === 'boxscore') {
