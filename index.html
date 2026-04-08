@@ -512,6 +512,142 @@ a, button { transition: color var(--transition), background var(--transition), o
 .ab-zone-pitch.ball-dot { background: var(--color-win); }
 .ab-zone-pitch.inplay-dot { background: var(--color-live); }
 
+/* ─── FULLSCREEN OVERLAY ─── */
+.fs-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 240px; margin: 0 auto;
+  background: var(--color-bg);
+  z-index: 1000;
+  flex-direction: column;
+  cursor: pointer;
+}
+.fs-overlay.open { display: flex; }
+.fs-overlay-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-divider);
+  flex-shrink: 0;
+}
+.fs-overlay-title { font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 700; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.06em; }
+.fs-overlay-hint { font-family: var(--font-mono); font-size: 0.4375rem; color: var(--color-text-faint); }
+.fs-overlay-version { font-family: var(--font-mono); font-size: 0.4375rem; color: var(--color-text-faint); opacity: 0.45; }
+.fs-overlay-body {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: var(--space-4);
+  gap: var(--space-3);
+  min-height: 0;
+}
+
+/* ── Fullscreen Zone ── */
+.fs-zone {
+  position: relative;
+  width: 180px; height: 200px;
+  border: 2px solid var(--color-border);
+  background: var(--color-surface-offset);
+  border-radius: 2px;
+}
+.fs-zone .ab-zone-pitch {
+  position: absolute;
+  border-radius: var(--radius-full);
+  transform: translate(-50%, -50%);
+}
+.fs-zone-legend {
+  display: flex; gap: var(--space-3); justify-content: center;
+  font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-muted);
+}
+.fs-zone-legend-dot {
+  width: 8px; height: 8px; border-radius: var(--radius-full);
+  display: inline-block; vertical-align: middle; margin-right: 3px;
+}
+
+/* ── Fullscreen Diamond ── */
+.fs-diamond-wrap { position: relative; width: 160px; height: 160px; }
+.fs-diamond-base {
+  position: absolute;
+  width: 28px; height: 28px;
+  border: 2.5px solid var(--color-border);
+  background: var(--color-surface-offset);
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+.fs-diamond-base.occupied {
+  background: var(--color-live);
+  border-color: var(--color-live);
+  box-shadow: 0 0 10px rgba(245,158,11,0.5);
+}
+.fs-base-2 { top: 8px; left: 50%; margin-left: -14px; }
+.fs-base-3 { top: 60px; left: 16px; }
+.fs-base-1 { top: 60px; right: 16px; }
+.fs-home-plate {
+  position: absolute;
+  bottom: 10px; left: 50%; margin-left: -14px;
+  width: 28px; height: 28px;
+  background: var(--color-surface-dynamic);
+  clip-path: polygon(50% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%);
+}
+.fs-diamond-line {
+  position: absolute;
+  background: var(--color-divider);
+}
+.fs-runner-label {
+  font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 600;
+  color: var(--color-live); text-align: center; margin-top: 2px;
+  max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ── Fullscreen Count ── */
+.fs-count-block { display: flex; flex-direction: column; gap: var(--space-3); }
+.fs-count-row { display: flex; align-items: center; gap: var(--space-2); }
+.fs-count-label {
+  font-family: var(--font-mono); font-size: var(--text-lg); font-weight: 700;
+  color: var(--color-text-faint); width: 24px; text-align: right;
+}
+.fs-count-dot {
+  width: 22px; height: 22px;
+  border-radius: var(--radius-full);
+  border: 2.5px solid var(--color-border);
+  background: transparent;
+}
+.fs-count-dot.ball-filled { background: var(--color-win); border-color: var(--color-win); }
+.fs-count-dot.strike-filled { background: var(--color-primary); border-color: var(--color-primary); }
+.fs-count-dot.out-filled { background: var(--color-loss); border-color: var(--color-loss); }
+.fs-count-text {
+  font-family: var(--font-mono); font-size: var(--text-xl); font-weight: 700;
+  color: var(--color-text); text-align: center; letter-spacing: 0.02em;
+}
+.fs-count-inning {
+  font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 600;
+  color: var(--color-live); text-align: center;
+}
+
+/* ── Fullscreen Stats ── */
+.fs-stats-wrap { width: 100%; }
+.fs-stats-side { margin-bottom: var(--space-3); }
+.fs-stats-name {
+  font-family: var(--font-mono); font-size: var(--text-md); font-weight: 700;
+  color: var(--color-text); margin-bottom: 2px;
+}
+.fs-stats-hand {
+  font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-faint); margin-bottom: var(--space-1);
+}
+.fs-stats-grid {
+  display: flex; flex-wrap: wrap; gap: var(--space-1);
+}
+.fs-stat-item {
+  display: flex; flex-direction: column; align-items: center;
+  min-width: 42px; padding: var(--space-1) var(--space-1);
+  background: var(--color-surface-2); border-radius: var(--radius-md);
+}
+.fs-stat-item-val { font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 700; color: var(--color-sched); }
+.fs-stat-item-label { font-family: var(--font-mono); font-size: 0.4375rem; color: var(--color-text-faint); text-transform: uppercase; }
+
+/* Tappable hint pulse on mini elements */
+.ab-diamond-wrap, .ab-count-block, .ab-zone-wrap, .ab-matchup { cursor: pointer; }
+
 /* ─── SKELETON ─── */
 @keyframes shimmer {
   0%   { background-position: -200% 0; }
@@ -587,7 +723,7 @@ a, button { transition: color var(--transition), background var(--transition), o
 
 <div class="status-bar">
   <span style="display:flex;flex-direction:column;align-items:flex-start">
-    <span class="version-watermark" id="versionWatermark">v2.0.1</span>
+    <span class="version-watermark" id="versionWatermark">v2.1.0</span>
     <span class="status-date" id="statusDate">Loading…</span>
   </span>
   <span class="status-text" id="statusGames">—</span>
@@ -636,6 +772,18 @@ a, button { transition: color var(--transition), background var(--transition), o
 
 </main>
 
+<!-- FULLSCREEN OVERLAY -->
+<div class="fs-overlay" id="fsOverlay">
+  <div class="fs-overlay-header">
+    <div style="display:flex;flex-direction:column">
+      <span class="fs-overlay-version" id="fsVersion">v2.1.0</span>
+      <span class="fs-overlay-title" id="fsTitle">ZONE</span>
+    </div>
+    <span class="fs-overlay-hint">TAP TO CLOSE</span>
+  </div>
+  <div class="fs-overlay-body" id="fsBody"></div>
+</div>
+
 <footer class="app-footer">
   <span class="footer-text">MLB Stats API · Free</span>
   <div class="countdown-bar-wrap"><div class="countdown-bar" id="countdownBar" style="width:100%"></div></div>
@@ -662,7 +810,8 @@ let state = {
   atbatLiveData: null,
   atbatRefreshTimer: null,
   atbatDetailFocusIndex: 0,
-  atbatStatMode: 'season' // 'season' or 'game'
+  atbatStatMode: 'season', // 'season' or 'game'
+  fsMode: null // null or 'zone'|'diamond'|'count'|'stats'
 };
 
 /* ── Helpers ── */
@@ -1381,7 +1530,8 @@ function renderAtBatDetail(data) {
 
   // Attach stat toggle
   document.querySelectorAll('#abStatToggle .ab-stat-toggle-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation(); // don't trigger matchup fullscreen
       const mode = btn.dataset.mode;
       if (mode !== state.atbatStatMode) {
         state.atbatStatMode = mode;
@@ -1389,6 +1539,207 @@ function renderAtBatDetail(data) {
       }
     });
   });
+
+  // Attach fullscreen tap handlers
+  document.querySelector('#tab-atbat .ab-zone-wrap')?.addEventListener('click', (e) => { e.stopPropagation(); openFullscreen('zone'); });
+  document.querySelector('#tab-atbat .ab-diamond-wrap')?.addEventListener('click', (e) => { e.stopPropagation(); openFullscreen('diamond'); });
+  document.querySelector('#tab-atbat .ab-count-block')?.addEventListener('click', (e) => { e.stopPropagation(); openFullscreen('count'); });
+  document.querySelector('#tab-atbat .ab-matchup')?.addEventListener('click', (e) => { e.stopPropagation(); openFullscreen('stats'); });
+}
+
+/* ══════════════════════════════════════════
+   FULLSCREEN OVERLAY SYSTEM
+   ══════════════════════════════════════════ */
+function openFullscreen(mode) {
+  if (!state.atbatLiveData) return;
+  state.fsMode = mode;
+  const overlay = document.getElementById('fsOverlay');
+  const titles = { zone: 'STRIKE ZONE', diamond: 'BASE RUNNERS', count: 'COUNT', stats: 'MATCHUP STATS' };
+  document.getElementById('fsTitle').textContent = titles[mode] || mode.toUpperCase();
+  renderFullscreen(mode);
+  overlay.classList.add('open');
+}
+
+function closeFullscreen() {
+  state.fsMode = null;
+  document.getElementById('fsOverlay').classList.remove('open');
+}
+
+// Close on tap, Escape, or sideClick
+document.getElementById('fsOverlay').addEventListener('click', (e) => {
+  // Don't close if tapping the stat toggle inside fullscreen stats
+  if (e.target.closest('.fs-stat-toggle-btn')) return;
+  closeFullscreen();
+});
+
+function renderFullscreen(mode) {
+  const data = state.atbatLiveData;
+  if (!data) return;
+  const body = document.getElementById('fsBody');
+  const ld = data.liveData || {};
+  const ls = ld.linescore || {};
+  const plays = ld.plays || {};
+  const currentPlay = plays.currentPlay || {};
+  const matchup = currentPlay.matchup || {};
+  const count = currentPlay.count || {};
+  const offense = ls.offense || {};
+  const boxscore = ld.boxscore || {};
+  const pitchEvents = (currentPlay.playEvents || []).filter(e => e.isPitch);
+  const balls = count.balls || 0;
+  const strikes = count.strikes || 0;
+  const outs = count.outs ?? ls.outs ?? 0;
+  const isTop = ls.isTopInning;
+  const currentInning = ls.currentInning || 1;
+
+  if (mode === 'zone') {
+    // Large strike zone with pitch dots
+    const zoneW = 180, zoneH = 200;
+    const dots = pitchEvents.map((p, i) => {
+      const coords = p.pitchData?.coordinates;
+      if (!coords || coords.pX === undefined || coords.pZ === undefined) return '';
+      const x = Math.max(0, Math.min(zoneW, ((coords.pX + 2) / 4) * zoneW));
+      const y = Math.max(0, Math.min(zoneH, ((4.5 - coords.pZ) / 4) * zoneH));
+      const isInPlay = p.details?.isInPlay;
+      const isStrike = p.details?.isStrike;
+      const dotClass = isInPlay ? 'inplay-dot' : (isStrike ? 'strike-dot' : 'ball-dot');
+      const isLast = i === pitchEvents.length - 1;
+      const size = isLast ? 12 : 8;
+      const opacity = isLast ? 1 : 0.5;
+      const label = isLast ? `<span style="position:absolute;top:${size+2}px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:0.5rem;color:var(--color-text-faint);white-space:nowrap">${p.details?.type?.code || ''} ${p.pitchData?.startSpeed ? Math.round(p.pitchData.startSpeed) : ''}</span>` : '';
+      return `<div class="ab-zone-pitch ${dotClass}" style="left:${x}px;top:${y}px;opacity:${opacity};width:${size}px;height:${size}px">${label}</div>`;
+    }).join('');
+
+    body.innerHTML = `
+      <div class="fs-zone">${dots}</div>
+      <div class="fs-zone-legend">
+        <span><span class="fs-zone-legend-dot" style="background:var(--color-primary)"></span>Strike</span>
+        <span><span class="fs-zone-legend-dot" style="background:var(--color-win)"></span>Ball</span>
+        <span><span class="fs-zone-legend-dot" style="background:var(--color-live)"></span>In Play</span>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-text-muted);text-align:center">
+        ${pitchEvents.length} pitch${pitchEvents.length !== 1 ? 'es' : ''} this AB
+      </div>`;
+
+  } else if (mode === 'diamond') {
+    const onFirst = !!(offense.first || matchup.postOnFirst);
+    const onSecond = !!(offense.second || matchup.postOnSecond);
+    const onThird = !!(offense.third || matchup.postOnThird);
+    const firstName = offense.first?.fullName ? lastName(offense.first.fullName) : '';
+    const secondName = offense.second?.fullName ? lastName(offense.second.fullName) : '';
+    const thirdName = offense.third?.fullName ? lastName(offense.third.fullName) : '';
+
+    body.innerHTML = `
+      <div class="fs-diamond-wrap">
+        <div class="fs-diamond-base fs-base-2${onSecond ? ' occupied' : ''}"></div>
+        <div class="fs-diamond-base fs-base-3${onThird ? ' occupied' : ''}"></div>
+        <div class="fs-diamond-base fs-base-1${onFirst ? ' occupied' : ''}"></div>
+        <div class="fs-home-plate"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--space-1);width:100%">
+        <div style="display:flex;justify-content:space-between;padding:0 var(--space-2)">
+          <div style="text-align:left">
+            <div style="font-family:var(--font-mono);font-size:0.5rem;color:var(--color-text-faint);font-weight:700">3RD</div>
+            <div class="fs-runner-label">${onThird ? thirdName || 'Runner' : '—'}</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--font-mono);font-size:0.5rem;color:var(--color-text-faint);font-weight:700">2ND</div>
+            <div class="fs-runner-label">${onSecond ? secondName || 'Runner' : '—'}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:var(--font-mono);font-size:0.5rem;color:var(--color-text-faint);font-weight:700">1ST</div>
+            <div class="fs-runner-label">${onFirst ? firstName || 'Runner' : '—'}</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-text-muted);text-align:center">
+        ${isTop ? '▲' : '▼'} ${ordinal(currentInning)} · ${outs} out${outs !== 1 ? 's' : ''}
+      </div>`;
+
+  } else if (mode === 'count') {
+    body.innerHTML = `
+      <div class="fs-count-text">${balls}-${strikes}</div>
+      <div class="fs-count-block">
+        <div class="fs-count-row">
+          <span class="fs-count-label">B</span>
+          ${[0,1,2,3].map(i => `<span class="fs-count-dot${i < balls ? ' ball-filled' : ''}"></span>`).join('')}
+        </div>
+        <div class="fs-count-row">
+          <span class="fs-count-label">S</span>
+          ${[0,1,2].map(i => `<span class="fs-count-dot${i < strikes ? ' strike-filled' : ''}"></span>`).join('')}
+        </div>
+        <div class="fs-count-row">
+          <span class="fs-count-label">O</span>
+          ${[0,1,2].map(i => `<span class="fs-count-dot${i < outs ? ' out-filled' : ''}"></span>`).join('')}
+        </div>
+      </div>
+      <div class="fs-count-inning">${isTop ? '▲' : '▼'} ${ordinal(currentInning)}</div>`;
+
+  } else if (mode === 'stats') {
+    const batter = matchup.batter || ls.offense?.batter || {};
+    const pitcher = matchup.pitcher || ls.defense?.pitcher || {};
+    const batSide = matchup.batSide?.code || '';
+    const pitchHand = matchup.pitchHand?.code || '';
+    const isSeason = state.atbatStatMode === 'season';
+    const bSeason = getPlayerSeasonStats(boxscore, batter.id, 'batting');
+    const bGame = getPlayerGameStats(boxscore, batter.id, 'batting');
+    const pSeason = getPlayerSeasonStats(boxscore, pitcher.id, 'pitching');
+    const pGame = getPlayerGameStats(boxscore, pitcher.id, 'pitching');
+    const bs = isSeason ? bSeason : bGame;
+    const ps = isSeason ? pSeason : pGame;
+
+    function ipToOutsFs(ip) {
+      if (ip === null || ip === undefined) return '-';
+      const parts = String(ip).split('.');
+      return (parseInt(parts[0])||0)*3 + (parseInt(parts[1])||0);
+    }
+
+    function statItem(val, label) {
+      return `<div class="fs-stat-item"><div class="fs-stat-item-val">${val}</div><div class="fs-stat-item-label">${label}</div></div>`;
+    }
+
+    let batterItems, pitcherItems;
+    if (isSeason) {
+      batterItems = statItem(fmt3(bs.avg),'AVG') + statItem(fmt3(bs.obp),'OBP') + statItem(fmt3(bs.slg),'SLG') + statItem(bs.homeRuns??'-','HR') + statItem(bs.rbi??'-','RBI') + statItem(fmt3(bs.ops),'OPS');
+      pitcherItems = statItem(fmtEra(ps.era),'ERA') + statItem(ps.strikeOuts??'-','K') + statItem((ps.wins??0)+'-'+(ps.losses??0),'W-L') + statItem(pGame.pitchesThrown??'-','PC') + statItem(pGame.earnedRuns??'-','ER') + statItem(ipToOutsFs(pGame.inningsPitched),'OUTS');
+    } else {
+      batterItems = statItem(bs.atBats??'-','AB') + statItem(bs.hits??'-','H') + statItem(bs.runs??'-','R') + statItem(bs.homeRuns??'-','HR') + statItem(bs.rbi??'-','RBI') + statItem(bs.baseOnBalls??'-','BB');
+      pitcherItems = statItem(ps.inningsPitched??'-','IP') + statItem(ps.strikeOuts??'-','K') + statItem(ps.hits??'-','H') + statItem(ps.earnedRuns??'-','ER') + statItem(ps.pitchesThrown??'-','PC') + statItem(ipToOutsFs(ps.inningsPitched),'OUTS');
+    }
+
+    body.innerHTML = `
+      <div class="ab-stat-toggle" id="fsStatToggle" style="width:100%;margin-bottom:var(--space-2)">
+        <div class="ab-stat-toggle-btn fs-stat-toggle-btn${isSeason ? ' active' : ''}" data-mode="season">SEASON</div>
+        <div class="ab-stat-toggle-btn fs-stat-toggle-btn${!isSeason ? ' active' : ''}" data-mode="game">GAME</div>
+      </div>
+      <div class="fs-stats-wrap">
+        <div class="fs-stats-side">
+          <div style="font-family:var(--font-mono);font-size:0.5rem;color:var(--color-primary);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">AT BAT</div>
+          <div class="fs-stats-name">${batter.fullName || '—'}</div>
+          <div class="fs-stats-hand">${batSide ? batSide + 'HB' : ''}</div>
+          <div class="fs-stats-grid">${batterItems}</div>
+        </div>
+        <div class="fs-stats-side">
+          <div style="font-family:var(--font-mono);font-size:0.5rem;color:var(--color-primary);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">PITCHING</div>
+          <div class="fs-stats-name">${pitcher.fullName || '—'}</div>
+          <div class="fs-stats-hand">${pitchHand ? pitchHand + 'HP' : ''}</div>
+          <div class="fs-stats-grid">${pitcherItems}</div>
+        </div>
+      </div>`;
+
+    // Attach toggle inside fullscreen
+    document.querySelectorAll('#fsStatToggle .fs-stat-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const mode = btn.dataset.mode;
+        if (mode !== state.atbatStatMode) {
+          state.atbatStatMode = mode;
+          renderFullscreen('stats');
+          // Also re-render the underlying detail so it stays in sync
+          renderAtBatDetail(state.atbatLiveData);
+        }
+      });
+    });
+  }
 }
 
 function renderMiniZone(pitchEvents) {
@@ -1569,8 +1920,9 @@ window.addEventListener('scrollDown', () => {
   }
 });
 
-// PTT click → on Scores tab: select focused game → on Box Score tab: refresh → on At Bat: select game or go back
+// PTT click → close fullscreen first, then handle normal actions
 window.addEventListener('sideClick', () => {
+  if (state.fsMode) { closeFullscreen(); return; }
   if (state.currentTab === 'scores') {
     const cards = getGameCards();
     if (cards.length && state.focusIndex >= 0 && state.focusIndex < cards.length) {
@@ -1621,6 +1973,9 @@ document.addEventListener('keydown', e=>{
       loadAll();
       if(state.currentTab==='boxscore'&&state.selectedGamePk) loadBoxscore(state.selectedGamePk);
     }
+  }
+  if (e.key==='Escape' && state.fsMode) {
+    closeFullscreen(); return;
   }
   if (e.key==='Escape' && state.currentTab === 'atbat' && state.atbatView === 'detail') {
     atbatGoBack();
