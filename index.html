@@ -266,6 +266,26 @@ a, button { transition: color var(--transition), background var(--transition), o
 .decision-name  { font-size: var(--text-sm); font-weight: 600; color: var(--color-text); font-family: var(--font-mono); }
 .decision-stat  { font-size: var(--text-xs); color: var(--color-text-muted); font-family: var(--font-mono); }
 
+/* ─── STAT TOGGLE ─── */
+.ab-stat-toggle {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; margin: var(--space-1) 0;
+  background: var(--color-surface-offset); border-radius: var(--radius-full);
+  padding: 1px; width: 100%;
+}
+.ab-stat-toggle-btn {
+  flex: 1; padding: 2px 0; text-align: center;
+  font-family: var(--font-mono); font-size: 0.5rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--color-text-faint); border-radius: var(--radius-full);
+  cursor: pointer; transition: all var(--transition);
+  min-height: 18px; display: flex; align-items: center; justify-content: center;
+}
+.ab-stat-toggle-btn.active {
+  background: var(--color-primary); color: var(--color-text);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
 /* ─── AT BAT UI ─── */
 .ab-scoreboard {
   display: flex; align-items: center; justify-content: space-between;
@@ -641,7 +661,8 @@ let state = {
   atbatFocusIndex: -1,
   atbatLiveData: null,
   atbatRefreshTimer: null,
-  atbatDetailFocusIndex: 0
+  atbatDetailFocusIndex: 0,
+  atbatStatMode: 'season' // 'season' or 'game'
 };
 
 /* ── Helpers ── */
@@ -1092,10 +1113,14 @@ function renderAtBatDetail(data) {
   const batSide = matchup.batSide?.code || '';
   const pitchHand = matchup.pitchHand?.code || '';
 
-  // Get season stats from boxscore
-  const batterStats = getPlayerSeasonStats(boxscore, batter.id, 'batting');
-  const pitcherStats = getPlayerSeasonStats(boxscore, pitcher.id, 'pitching');
+  // Get both season and game stats from boxscore
+  const batterSeasonStats = getPlayerSeasonStats(boxscore, batter.id, 'batting');
+  const batterGameStats = getPlayerGameStats(boxscore, batter.id, 'batting');
+  const pitcherSeasonStats = getPlayerSeasonStats(boxscore, pitcher.id, 'pitching');
   const pitcherGameStats = getPlayerGameStats(boxscore, pitcher.id, 'pitching');
+  const isSeason = state.atbatStatMode === 'season';
+  const batterStats = isSeason ? batterSeasonStats : batterGameStats;
+  const pitcherStats = isSeason ? pitcherSeasonStats : pitcherGameStats;
 
   // Count
   const count = currentPlay.count || {};
@@ -1171,10 +1196,68 @@ function renderAtBatDetail(data) {
     ${renderMiniZone(pitchEvents)}
   </div>`;
 
+  // Compute pitcher outs from IP (e.g. "5.2" → 17 outs)
+  function ipToOuts(ip) {
+    if (ip === null || ip === undefined) return '-';
+    const s = String(ip);
+    const parts = s.split('.');
+    const full = parseInt(parts[0]) || 0;
+    const frac = parseInt(parts[1]) || 0;
+    return full * 3 + frac;
+  }
+
   // Matchup panel
   if (batter.fullName || pitcher.fullName) {
+    // Batter stats rows differ for season vs game
+    let batterRow1, batterRow2;
+    if (isSeason) {
+      batterRow1 = `
+            <div class="ab-stat-chip"><div class="ab-stat-val">${fmt3(batterStats.avg)}</div><div class="ab-stat-label">AVG</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${fmt3(batterStats.obp)}</div><div class="ab-stat-label">OBP</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${fmt3(batterStats.slg)}</div><div class="ab-stat-label">SLG</div></div>`;
+      batterRow2 = `
+            <div class="ab-stat-chip"><div class="ab-stat-val">${batterStats.homeRuns ?? '-'}</div><div class="ab-stat-label">HR</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${batterStats.rbi ?? '-'}</div><div class="ab-stat-label">RBI</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${fmt3(batterStats.ops)}</div><div class="ab-stat-label">OPS</div></div>`;
+    } else {
+      batterRow1 = `
+            <div class="ab-stat-chip"><div class="ab-stat-val">${batterStats.atBats ?? '-'}</div><div class="ab-stat-label">AB</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${batterStats.hits ?? '-'}</div><div class="ab-stat-label">H</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${batterStats.runs ?? '-'}</div><div class="ab-stat-label">R</div></div>`;
+      batterRow2 = `
+            <div class="ab-stat-chip"><div class="ab-stat-val">${batterStats.homeRuns ?? '-'}</div><div class="ab-stat-label">HR</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${batterStats.rbi ?? '-'}</div><div class="ab-stat-label">RBI</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${batterStats.baseOnBalls ?? '-'}</div><div class="ab-stat-label">BB</div></div>`;
+    }
+
+    // Pitcher stats rows differ for season vs game
+    let pitcherRow1, pitcherRow2;
+    if (isSeason) {
+      pitcherRow1 = `
+            <div class="ab-stat-chip"><div class="ab-stat-val">${fmtEra(pitcherStats.era)}</div><div class="ab-stat-label">ERA</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${pitcherStats.strikeOuts ?? '-'}</div><div class="ab-stat-label">K</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${pitcherStats.wins ?? 0}-${pitcherStats.losses ?? 0}</div><div class="ab-stat-label">W-L</div></div>`;
+      pitcherRow2 = `
+            <div class="ab-stat-chip"><div class="ab-stat-val">${pitcherGameStats.pitchesThrown ?? '-'}</div><div class="ab-stat-label">PC</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${pitcherGameStats.earnedRuns ?? '-'}</div><div class="ab-stat-label">ER</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${ipToOuts(pitcherGameStats.inningsPitched)}</div><div class="ab-stat-label">OUTS</div></div>`;
+    } else {
+      pitcherRow1 = `
+            <div class="ab-stat-chip"><div class="ab-stat-val">${pitcherStats.inningsPitched ?? '-'}</div><div class="ab-stat-label">IP</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${pitcherStats.strikeOuts ?? '-'}</div><div class="ab-stat-label">K</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${pitcherStats.hits ?? '-'}</div><div class="ab-stat-label">H</div></div>`;
+      pitcherRow2 = `
+            <div class="ab-stat-chip"><div class="ab-stat-val">${pitcherStats.earnedRuns ?? '-'}</div><div class="ab-stat-label">ER</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${pitcherStats.pitchesThrown ?? '-'}</div><div class="ab-stat-label">PC</div></div>
+            <div class="ab-stat-chip"><div class="ab-stat-val">${ipToOuts(pitcherStats.inningsPitched)}</div><div class="ab-stat-label">OUTS</div></div>`;
+    }
+
     html += `
     <div class="ab-matchup">
+      <div class="ab-stat-toggle" id="abStatToggle">
+        <div class="ab-stat-toggle-btn${isSeason ? ' active' : ''}" data-mode="season">SEASON</div>
+        <div class="ab-stat-toggle-btn${!isSeason ? ' active' : ''}" data-mode="game">GAME</div>
+      </div>
       <div class="ab-matchup-header">
         <span class="ab-matchup-label">AT BAT</span>
         <span class="ab-vs">vs</span>
@@ -1184,30 +1267,14 @@ function renderAtBatDetail(data) {
         <div style="flex:1;min-width:0">
           <div class="ab-player-name">${batter.fullName || '—'}</div>
           <div class="ab-player-hand">${batSide ? batSide + 'HB' : ''}</div>
-          <div class="ab-player-stats" style="margin-top:2px">
-            <div class="ab-stat-chip"><div class="ab-stat-val">${fmt3(batterStats.avg)}</div><div class="ab-stat-label">AVG</div></div>
-            <div class="ab-stat-chip"><div class="ab-stat-val">${fmt3(batterStats.obp)}</div><div class="ab-stat-label">OBP</div></div>
-            <div class="ab-stat-chip"><div class="ab-stat-val">${fmt3(batterStats.slg)}</div><div class="ab-stat-label">SLG</div></div>
-          </div>
-          <div class="ab-player-stats" style="margin-top:2px">
-            <div class="ab-stat-chip"><div class="ab-stat-val">${batterStats.homeRuns ?? '-'}</div><div class="ab-stat-label">HR</div></div>
-            <div class="ab-stat-chip"><div class="ab-stat-val">${batterStats.rbi ?? '-'}</div><div class="ab-stat-label">RBI</div></div>
-            <div class="ab-stat-chip"><div class="ab-stat-val">${fmt3(batterStats.ops)}</div><div class="ab-stat-label">OPS</div></div>
-          </div>
+          <div class="ab-player-stats" style="margin-top:2px">${batterRow1}</div>
+          <div class="ab-player-stats" style="margin-top:2px">${batterRow2}</div>
         </div>
         <div style="flex:1;min-width:0;text-align:right">
           <div class="ab-player-name" style="text-align:right">${pitcher.fullName || '—'}</div>
           <div class="ab-player-hand" style="text-align:right">${pitchHand ? pitchHand + 'HP' : ''}</div>
-          <div class="ab-player-stats" style="margin-top:2px;justify-content:flex-end">
-            <div class="ab-stat-chip"><div class="ab-stat-val">${fmtEra(pitcherStats.era)}</div><div class="ab-stat-label">ERA</div></div>
-            <div class="ab-stat-chip"><div class="ab-stat-val">${pitcherStats.strikeOuts ?? '-'}</div><div class="ab-stat-label">K</div></div>
-            <div class="ab-stat-chip"><div class="ab-stat-val">${pitcherStats.wins ?? 0}-${pitcherStats.losses ?? 0}</div><div class="ab-stat-label">W-L</div></div>
-          </div>
-          <div class="ab-player-stats" style="margin-top:2px;justify-content:flex-end">
-            <div class="ab-stat-chip"><div class="ab-stat-val">${pitcherGameStats.pitchesThrown ?? '-'}</div><div class="ab-stat-label">PC</div></div>
-            <div class="ab-stat-chip"><div class="ab-stat-val">${pitcherGameStats.strikes ?? '-'}</div><div class="ab-stat-label">STR</div></div>
-            <div class="ab-stat-chip"><div class="ab-stat-val">${pitcherGameStats.inningsPitched ?? '-'}</div><div class="ab-stat-label">IP</div></div>
-          </div>
+          <div class="ab-player-stats" style="margin-top:2px;justify-content:flex-end">${pitcherRow1}</div>
+          <div class="ab-player-stats" style="margin-top:2px;justify-content:flex-end">${pitcherRow2}</div>
         </div>
       </div>
     </div>`;
@@ -1311,6 +1378,17 @@ function renderAtBatDetail(data) {
 
   // Attach back button
   document.getElementById('atbatBackBtn')?.addEventListener('click', atbatGoBack);
+
+  // Attach stat toggle
+  document.querySelectorAll('#abStatToggle .ab-stat-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.mode;
+      if (mode !== state.atbatStatMode) {
+        state.atbatStatMode = mode;
+        renderAtBatDetail(state.atbatLiveData);
+      }
+    });
+  });
 }
 
 function renderMiniZone(pitchEvents) {
