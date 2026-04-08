@@ -537,9 +537,10 @@ a, button { transition: color var(--transition), background var(--transition), o
 .fs-overlay-body {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  padding: var(--space-4);
-  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  gap: var(--space-2);
   min-height: 0;
+  overflow-y: auto;
 }
 
 /* ── Fullscreen Zone ── */
@@ -626,10 +627,10 @@ a, button { transition: color var(--transition), background var(--transition), o
 
 /* ── Fullscreen Stats ── */
 .fs-stats-wrap { width: 100%; }
-.fs-stats-side { margin-bottom: var(--space-3); }
+.fs-stats-side { margin-bottom: var(--space-2); }
 .fs-stats-name {
-  font-family: var(--font-mono); font-size: var(--text-md); font-weight: 700;
-  color: var(--color-text); margin-bottom: 2px;
+  font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 700;
+  color: var(--color-text); margin-bottom: 1px;
 }
 .fs-stats-hand {
   font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-faint); margin-bottom: var(--space-1);
